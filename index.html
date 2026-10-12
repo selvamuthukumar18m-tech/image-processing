@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IVA Assignment: Face & Object Recognition Analytics</title>
+  <meta name="description" content="Academic Assignment on Image and Video Analytics (IVA) covering Template Matching, Viola-Jones Algorithm, DeepFace, and FaceNet.">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- KaTeX for crisp LaTeX math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  
+  <!-- Chart.js for benchmark radar and bar graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-blue-600 selection:text-white">
+
+  <!-- =========================================================================
+       1. Top Header & Academic Badge
+       ========================================================================= -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & Assignment Branding -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+          <i class="fas fa-eye text-lg"></i>
+        </div>
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-blue-400 block">IVA Coursework Platform</span>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            Face & Object Recognition
+            <span class="hidden sm:inline-block text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 font-normal">Assignment 2026</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Action Utilities -->
+      <div class="flex items-center space-x-3">
+        <button id="export-assignment-btn" class="no-print hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+          <i class="fas fa-print text-slate-400"></i>
+          <span>Print Report</span>
+        </button>
+
+        <button id="theme-toggle-btn" aria-label="Toggle Theme" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-slate-300 transition">
+          <i id="theme-icon" class="fas fa-sun text-amber-400"></i>
+        </button>
+
+        <!-- Mobile hamburger -->
+        <button id="mobile-menu-btn" class="sm:hidden w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Navigation Bar / Tabs -->
+    <nav class="border-t border-slate-800/60 bg-slate-900/40 px-4 sm:px-6 lg:px-8 overflow-x-auto no-scrollbar">
+      <div class="max-w-7xl mx-auto flex space-x-1 sm:space-x-6 text-sm font-medium py-2">
+        <button data-target="overview" class="nav-tab-btn active px-3 py-1.5 rounded-md hover:text-blue-400 transition whitespace-nowrap">
+          <i class="fas fa-compass mr-1.5 text-xs"></i>Overview & Evolution
+        </button>
+        <button data-target="template-matching" class="nav-tab-btn text-slate-400 px-3 py-1.5 rounded-md hover:text-blue-400 transition whitespace-nowrap">
+          <i class="fas fa-clone mr-1.5 text-xs text-rose-400"></i>1. Template Matching
+        </button>
+        <button data-target="viola-jones" class="nav-tab-btn text-slate-400 px-3 py-1.5 rounded-md hover:text-blue-400 transition whitespace-nowrap">
+          <i class="fas fa-border-all mr-1.5 text-xs text-amber-400"></i>2. Viola-Jones
+        </button>
+        <button data-target="deepface" class="nav-tab-btn text-slate-400 px-3 py-1.5 rounded-md hover:text-blue-400 transition whitespace-nowrap">
+          <i class="fas fa-cube mr-1.5 text-xs text-blue-400"></i>3. DeepFace
+        </button>
+        <button data-target="facenet" class="nav-tab-btn text-slate-400 px-3 py-1.5 rounded-md hover:text-blue-400 transition whitespace-nowrap">
+          <i class="fas fa-project-diagram mr-1.5 text-xs text-emerald-400"></i>4. FaceNet
+        </button>
+        <button data-target="comparative-analysis" class="nav-tab-btn text-slate-400 px-3 py-1.5 rounded-md hover:text-blue-400 transition whitespace-nowrap">
+          <i class="fas fa-chart-radar mr-1.5 text-xs text-purple-400"></i>Benchmarks & Radar
+        </button>
+        <button data-target="quiz" class="nav-tab-btn text-slate-400 px-3 py-1.5 rounded-md hover:text-blue-400 transition whitespace-nowrap">
+          <i class="fas fa-graduation-cap mr-1.5 text-xs text-cyan-400"></i>Knowledge Quiz
+        </button>
+        <button data-target="references" class="nav-tab-btn text-slate-400 px-3 py-1.5 rounded-md hover:text-blue-400 transition whitespace-nowrap">
+          <i class="fas fa-book-bookmark mr-1.5 text-xs text-slate-400"></i>Citations
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden sm:hidden bg-slate-900 border-b border-slate-800 p-4 space-y-2">
+      <button data-target="overview" class="nav-tab-btn block w-full text-left py-2 text-sm text-slate-300">Overview & Evolution</button>
+      <button data-target="template-matching" class="nav-tab-btn block w-full text-left py-2 text-sm text-slate-300">1. Template Matching</button>
+      <button data-target="viola-jones" class="nav-tab-btn block w-full text-left py-2 text-sm text-slate-300">2. Viola-Jones</button>
+      <button data-target="deepface" class="nav-tab-btn block w-full text-left py-2 text-sm text-slate-300">3. DeepFace</button>
+      <button data-target="facenet" class="nav-tab-btn block w-full text-left py-2 text-sm text-slate-300">4. FaceNet</button>
+      <button data-target="comparative-analysis" class="nav-tab-btn block w-full text-left py-2 text-sm text-slate-300">Benchmarks & Radar</button>
+      <button data-target="quiz" class="nav-tab-btn block w-full text-left py-2 text-sm text-slate-300">Knowledge Quiz</button>
+      <button data-target="references" class="nav-tab-btn block w-full text-left py-2 text-sm text-slate-300">Citations</button>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       MAIN CONTENT CONTAINER
+       ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- =======================================================================
+         TAB 0: OVERVIEW & EVOLUTION
+         ======================================================================= -->
+    <section id="overview" class="topic-section space-y-8">
+      
+      <!-- Hero Banner -->
+      <div class="relative overflow-hidden rounded-2xl p-8 bg-gradient-to-br from-slate-900 via-blue-950/40 to-slate-900 border border-slate-800 shadow-2xl">
+        <div class="absolute -right-10 -top-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-3xl">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30 mb-4">
+            <i class="fas fa-atom"></i> Intelligent Video & Image Analytics (IVA)
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+            The Architectural Evolution of Computer Vision & Facial Recognition
+          </h2>
+          <p class="text-slate-300 leading-relaxed text-base sm:text-lg">
+            Facial analysis has undergone four seismic paradigm shifts over the last 30 years: from brute-force <strong class="text-rose-400">pixel sliding windows</strong>, to real-time boosted <strong class="text-amber-400">Haar cascades</strong>, to 3D-aligned <strong class="text-blue-400">deep local representations</strong>, and finally to end-to-end <strong class="text-emerald-400">metric embeddings in Euclidean space</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Staff Evaluation Custom Image Hub -->
+      <div class="glass-panel p-6 rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-slate-900 via-indigo-950/20 to-slate-900 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-indigo-400 text-lg">
+              <i class="fas fa-camera"></i>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                Staff & Evaluator Testing Hub: Upload Your Own Images
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-mono font-semibold">Live Testing Ready</span>
+              </h3>
+              <p class="text-xs text-slate-300">
+                You and your staff can upload custom photos to test real sliding-window template matching, Haar filter contrast, 3D facial alignment, and 128-D Euclidean face verification.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-xs">
+          <button onclick="document.querySelector('[data-target=\'template-matching\']').click()" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-rose-500/30 text-left transition hover:border-rose-500/60 group">
+            <div class="text-rose-400 font-semibold mb-1 flex items-center justify-between">
+              <span>1. Template Match</span>
+              <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+            </div>
+            <span class="text-[11px] text-slate-400 block">Upload search image or click to crop</span>
+          </button>
+
+          <button onclick="document.querySelector('[data-target=\'viola-jones\']').click()" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/30 text-left transition hover:border-amber-500/60 group">
+            <div class="text-amber-400 font-semibold mb-1 flex items-center justify-between">
+              <span>2. Viola-Jones</span>
+              <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+            </div>
+            <span class="text-[11px] text-slate-400 block">Upload face to test Haar filter responses</span>
+          </button>
+
+          <button onclick="document.querySelector('[data-target=\'deepface\']').click()" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-blue-500/30 text-left transition hover:border-blue-500/60 group">
+            <div class="text-blue-400 font-semibold mb-1 flex items-center justify-between">
+              <span>3. DeepFace</span>
+              <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+            </div>
+            <span class="text-[11px] text-slate-400 block">Upload face to see 3D Delaunay alignment</span>
+          </button>
+
+          <button onclick="document.querySelector('[data-target=\'facenet\']').click()" class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/30 text-left transition hover:border-emerald-500/60 group">
+            <div class="text-emerald-400 font-semibold mb-1 flex items-center justify-between">
+              <span>4. FaceNet</span>
+              <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+            </div>
+            <span class="text-[11px] text-slate-400 block">Upload 2 photos for 128-D Euclidean verify</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Evolution Timeline Cards -->
+      <div>
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fas fa-timeline text-blue-400"></i> The Four Milestones
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <!-- Card 1: Template Matching -->
+          <div class="glass-panel p-6 rounded-xl border border-rose-500/30 hover:border-rose-500/60 transition group cursor-pointer" onclick="document.querySelector('[data-target=\'template-matching\']').click()">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-mono font-bold text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded">1990s - Classical</span>
+              <i class="fas fa-clone text-rose-400 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <h4 class="text-lg font-bold text-white mb-2">Template Matching</h4>
+            <p class="text-sm text-slate-300 mb-4">
+              Rigid sliding-window pixel correlation using Sum of Squared Differences (SSD) or Normalized Cross-Correlation (NCC).
+            </p>
+            <div class="text-xs text-rose-300 font-semibold flex items-center gap-1">
+              Explore Module <i class="fas fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+
+          <!-- Card 2: Viola Jones -->
+          <div class="glass-panel p-6 rounded-xl border border-amber-500/30 hover:border-amber-500/60 transition group cursor-pointer" onclick="document.querySelector('[data-target=\'viola-jones\']').click()">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded">2001 - Breakthrough</span>
+              <i class="fas fa-border-all text-amber-400 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <h4 class="text-lg font-bold text-white mb-2">Viola-Jones Algorithm</h4>
+            <p class="text-sm text-slate-300 mb-4">
+              First real-time object detector combining Integral Images ($O(1)$ sum lookups), AdaBoost feature selection, and attentional cascades.
+            </p>
+            <div class="text-xs text-amber-300 font-semibold flex items-center gap-1">
+              Explore Module <i class="fas fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+
+          <!-- Card 3: DeepFace -->
+          <div class="glass-panel p-6 rounded-xl border border-blue-500/30 hover:border-blue-500/60 transition group cursor-pointer" onclick="document.querySelector('[data-target=\'deepface\']').click()">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded">2014 - Deep Learning</span>
+              <i class="fas fa-cube text-blue-400 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <h4 class="text-lg font-bold text-white mb-2">DeepFace (Facebook)</h4>
+            <p class="text-sm text-slate-300 mb-4">
+              Pioneered 3D face alignment & frontalization with locally connected layers (unshared weights), reaching near-human 97.35% accuracy on LFW.
+            </p>
+            <div class="text-xs text-blue-300 font-semibold flex items-center gap-1">
+              Explore Module <i class="fas fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+
+          <!-- Card 4: FaceNet -->
+          <div class="glass-panel p-6 rounded-xl border border-emerald-500/30 hover:border-emerald-500/60 transition group cursor-pointer" onclick="document.querySelector('[data-target=\'facenet\']').click()">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded">2015 - Metric Learning</span>
+              <i class="fas fa-project-diagram text-emerald-400 text-xl group-hover:scale-110 transition-transform"></i>
+            </div>
+            <h4 class="text-lg font-bold text-white mb-2">FaceNet (Google)</h4>
+            <p class="text-sm text-slate-300 mb-4">
+              Direct Euclidean metric embedding in 128-D space trained via Triplet Loss with online semi-hard negative mining, achieving 99.63% accuracy.
+            </p>
+            <div class="text-xs text-emerald-300 font-semibold flex items-center gap-1">
+              Explore Module <i class="fas fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Conceptual Shift Matrix -->
+      <div class="glass-panel p-6 rounded-xl border border-slate-800">
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fas fa-exchange-alt text-indigo-400"></i> The Fundamental Paradigm Shift
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="text-xs uppercase bg-slate-900/80 text-slate-400 border-b border-slate-700">
+              <tr>
+                <th class="px-4 py-3">Paradigm Phase</th>
+                <th class="px-4 py-3">Feature Representation</th>
+                <th class="px-4 py-3">Matching / Objective</th>
+                <th class="px-4 py-3">Computational Bottleneck</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 font-mono text-xs">
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-rose-400">Template Matching</td>
+                <td class="px-4 py-3">Raw pixel intensities (untransformed)</td>
+                <td class="px-4 py-3">Pixel-by-pixel cross correlation / SSD</td>
+                <td class="px-4 py-3">$O(W \cdot H \cdot w \cdot h)$ sliding window</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-amber-400">Viola-Jones</td>
+                <td class="px-4 py-3">Haar-like rectangular difference filters</td>
+                <td class="px-4 py-3">AdaBoost weighted thresholding cascade</td>
+                <td class="px-4 py-3">$O(1)$ lookup with Integral Image</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-blue-400">DeepFace</td>
+                <td class="px-4 py-3">4096-D representation via Locally Connected CNN</td>
+                <td class="px-4 py-3">Multi-class identity Softmax classification</td>
+                <td class="px-4 py-3">3D Piecewise Affine Warping & 120M+ params</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-emerald-400">FaceNet</td>
+                <td class="px-4 py-3">Compact 128-D L2-normalized Euclidean embedding</td>
+                <td class="px-4 py-3">Triplet Loss: $\|A - P\|^2 + \alpha \le \|A - N\|^2$</td>
+                <td class="px-4 py-3">Online semi-hard triplet mini-batch mining</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         TAB 1: TEMPLATE MATCHING
+         ======================================================================= -->
+    <section id="template-matching" class="topic-section hidden space-y-8">
+      
+      <!-- Module Header -->
+      <div class="border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2 text-rose-400 text-sm font-semibold mb-1">
+          <i class="fas fa-clone"></i> Classical Sliding-Window Approach
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">1. Template Matching</h2>
+        <p class="text-slate-300 text-sm mt-1">
+          Mathematical sliding window formulation, correlation metrics, interactive canvas visualizer, and transformation failure modes.
+        </p>
+      </div>
+
+      <!-- Theory & Mathematical Foundations -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fas fa-calculator text-blue-400"></i> Mathematical Formulations
+          </h3>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Template matching moves a template patch $T$ of dimensions $w \times h$ across an input image $I$ of size $W \times H$. At every sub-window $(x,y)$, a similarity metric $R(x,y)$ is evaluated.
+          </p>
+
+          <div class="formula-card space-y-2">
+            <div class="text-xs font-bold text-blue-400 uppercase tracking-wide">1. Squared Difference (TM_SQDIFF_NORMED)</div>
+            <div class="text-sm text-slate-100 font-mono">
+              $$R_{SSD}(x,y) = \frac{\sum_{x',y'} (T(x',y') - I(x+x', y+y'))^2}{\sqrt{\sum (T)^2 \cdot \sum (I)^2}}$$
+            </div>
+            <p class="text-xs text-slate-400">Optimal match occurs at local <strong>minimum</strong> ($\text{Score} \to 0$).</p>
+          </div>
+
+          <div class="formula-card space-y-2">
+            <div class="text-xs font-bold text-indigo-400 uppercase tracking-wide">2. Normalized Cross-Correlation (TM_CCORR_NORMED)</div>
+            <div class="text-sm text-slate-100 font-mono">
+              $$R_{CCORR}(x,y) = \frac{\sum_{x',y'} T(x',y') \cdot I(x+x', y+y')}{\sqrt{\sum (T)^2 \cdot \sum (I)^2}}$$
+            </div>
+            <p class="text-xs text-slate-400">Optimal match occurs at local <strong>maximum</strong> ($\text{Score} \to 1$).</p>
+          </div>
+
+          <div class="formula-card space-y-2">
+            <div class="text-xs font-bold text-emerald-400 uppercase tracking-wide">3. Correlation Coefficient (TM_CCOEFF_NORMED)</div>
+            <div class="text-sm text-slate-100 font-mono">
+              $$R_{CCOEFF}(x,y) = \frac{\sum (T' \cdot I')}{\sqrt{\sum (T')^2 \cdot \sum (I')^2}}$$
+            </div>
+            <p class="text-xs text-slate-400">Subtracts local mean $T'(x',y') = T(x',y') - \bar{T}$, providing invariance to global uniform brightness shifts.</p>
+          </div>
+        </div>
+
+        <!-- Failure Modes Analysis -->
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fas fa-exclamation-triangle text-amber-400"></i> Critical Limitations in Video Analytics
+          </h3>
+          <p class="text-sm text-slate-300">
+            While mathematically straightforward, template matching fails in real-world intelligent video surveillance due to severe lack of invariance:
+          </p>
+
+          <ul class="space-y-3 text-sm text-slate-300">
+            <li class="flex items-start gap-2">
+              <i class="fas fa-times-circle text-rose-400 mt-0.5"></i>
+              <div>
+                <strong class="text-white">Scale Invariance:</strong> Even a 10% change in subject distance from camera destroys pixel correlation; requires expensive multi-resolution pyramids.
+              </div>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fas fa-times-circle text-rose-400 mt-0.5"></i>
+              <div>
+                <strong class="text-white">In-Plane & Out-of-Plane Rotation:</strong> Cannot accommodate face pose changes, yaw, pitch, or head tilts without checking every rotation angle individually.
+              </div>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fas fa-times-circle text-rose-400 mt-0.5"></i>
+              <div>
+                <strong class="text-white">Deformation & Occlusion:</strong> Facial expressions (smiling, blinking) alter local topology, resulting in false negatives.
+              </div>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fas fa-times-circle text-rose-400 mt-0.5"></i>
+              <div>
+                <strong class="text-white">Computational Complexity:</strong> Naive time complexity is $O((W-w)(H-h) \cdot wh)$, making high-definition video scanning intractable without FFT acceleration.
+              </div>
+            </li>
+          </ul>
+
+          <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 text-xs text-slate-400">
+            <strong class="text-slate-200">OpenCV Signature:</strong>
+            <pre class="mt-1 font-mono text-blue-300">res = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
+min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)</pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Interactive Simulation Lab -->
+      <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fas fa-flask text-rose-400"></i> Interactive Template Matching Lab
+              </h3>
+              <span id="tm-custom-badge" class="hidden px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-semibold">
+                <i class="fas fa-image mr-1"></i> Custom Image Active
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">Test matching performance, upload your own images, or click on the search canvas to crop a custom template!</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Custom Image Upload Buttons -->
+            <label class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5">
+              <i class="fas fa-upload text-blue-400"></i>
+              <span>Upload Search Image</span>
+              <input type="file" id="tm-upload-search" accept="image/*" class="hidden">
+            </label>
+            <label class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5">
+              <i class="fas fa-crop text-emerald-400"></i>
+              <span>Upload Template</span>
+              <input type="file" id="tm-upload-template" accept="image/*" class="hidden">
+            </label>
+            <button id="tm-btn-reset-preset" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 text-xs transition" title="Reset to default scene">
+              <i class="fas fa-undo"></i>
+            </button>
+            <button id="tm-btn-animate" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow transition">
+              <i class="fas fa-play mr-1"></i> Scan Animation
+            </button>
+          </div>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-slate-900/80 rounded-xl border border-slate-800 text-xs">
+          
+          <div>
+            <label class="block text-slate-400 mb-1 font-medium">Matching Metric</label>
+            <select id="tm-method-select" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-slate-200 focus:ring-1 focus:ring-blue-500">
+              <option value="ccoeff_normed">TM_CCOEFF_NORMED (Normalized Coeff)</option>
+              <option value="ccorr_normed">TM_CCORR_NORMED (Normalized Cross-Corr)</option>
+              <option value="sqdiff_normed">TM_SQDIFF_NORMED (Squared Difference)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-slate-400 mb-1 font-medium">Test Scene</label>
+            <select id="tm-scene-select" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-slate-200 focus:ring-1 focus:ring-blue-500">
+              <option value="face">Ocular Patch (Eye in Face)</option>
+              <option value="glyph">Geometric Marker</option>
+            </select>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-slate-400 mb-1">
+              <span>Distortion: Rotation</span>
+              <span id="tm-rot-val" class="font-mono text-blue-400">0°</span>
+            </div>
+            <input id="tm-rot-slider" type="range" min="0" max="180" value="0" step="5" class="w-full accent-blue-500">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-slate-400 mb-1">
+              <span>Gaussian Noise</span>
+              <span id="tm-noise-val" class="font-mono text-rose-400">0%</span>
+            </div>
+            <input id="tm-noise-slider" type="range" min="0" max="60" value="0" step="5" class="w-full accent-rose-500">
+          </div>
+
+        </div>
+
+        <!-- Hidden scale slider reference -->
+        <input id="tm-scale-slider" type="hidden" value="1.0">
+        <span id="tm-scale-val" class="hidden">1.0x</span>
+
+        <!-- Active formula formula banner -->
+        <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-800 flex items-center justify-between text-xs">
+          <span class="text-slate-400 font-medium">Active Equation:</span>
+          <div id="tm-active-formula" class="font-mono text-blue-300"></div>
+        </div>
+
+        <!-- Canvases Display -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          
+          <!-- Template Preview -->
+          <div class="md:col-span-2 flex flex-col items-center p-3 bg-slate-900 rounded-xl border border-slate-800">
+            <span class="text-xs font-semibold text-slate-400 mb-2">Template (40×40)</span>
+            <div class="w-16 h-16 rounded border border-slate-700 overflow-hidden flex items-center justify-center bg-black">
+              <canvas id="tm-template-preview" width="40" height="40" class="w-16 h-16"></canvas>
+            </div>
+            <span class="text-[10px] text-slate-500 mt-2 text-center">Reference Kernel</span>
+          </div>
+
+          <!-- Main Search Canvas -->
+          <div class="md:col-span-5 flex flex-col items-center">
+            <span class="text-xs font-semibold text-slate-400 mb-2">Input Search Image (260×180)</span>
+            <div class="interactive-canvas-container">
+              <canvas id="tm-search-canvas" class="max-w-full h-auto"></canvas>
+            </div>
+            <span class="text-[10px] text-slate-500 mt-1">Green box = Optimal match detection</span>
+          </div>
+
+          <!-- Heatmap Canvas -->
+          <div class="md:col-span-5 flex flex-col items-center">
+            <span class="text-xs font-semibold text-slate-400 mb-2">Correlation Response Heatmap</span>
+            <div class="interactive-canvas-container">
+              <canvas id="tm-heatmap-canvas" class="max-w-full h-auto"></canvas>
+            </div>
+            <span class="text-[10px] text-slate-500 mt-1">Thermal map: Red = Peak correlation, Blue = Low</span>
+          </div>
+
+        </div>
+
+        <!-- Telemetry Metrics Readout -->
+        <div class="grid grid-cols-3 gap-4 pt-2 border-t border-slate-800 text-center">
+          <div class="p-3 rounded-lg bg-slate-900/70 border border-slate-800">
+            <span class="text-xs text-slate-400 block">Peak Match Score</span>
+            <span id="tm-best-score" class="text-base font-bold text-emerald-400 font-mono">--</span>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-900/70 border border-slate-800">
+            <span class="text-xs text-slate-400 block">Detected Bounding Box</span>
+            <span id="tm-best-loc" class="text-base font-bold text-blue-400 font-mono">--</span>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-900/70 border border-slate-800">
+            <span class="text-xs text-slate-400 block">Localization Error</span>
+            <span id="tm-ground-truth-dist" class="text-base font-bold font-mono">0.0 px</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         TAB 2: VIOLA-JONES ALGORITHM
+         ======================================================================= -->
+    <section id="viola-jones" class="topic-section hidden space-y-8">
+      
+      <!-- Module Header -->
+      <div class="border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2 text-amber-400 text-sm font-semibold mb-1">
+          <i class="fas fa-border-all"></i> Real-Time Object Detection Framework (2001)
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">2. Viola-Jones Algorithm</h2>
+        <p class="text-slate-300 text-sm mt-1">
+          Haar-like features, $O(1)$ Integral Image rectangle sums, AdaBoost feature boosting, and the Attentional Cascade.
+        </p>
+      </div>
+
+      <!-- Theory Pillars Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="glass-panel p-5 rounded-xl border border-slate-800">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
+            <span class="font-bold">1</span>
+          </div>
+          <h4 class="font-bold text-white text-sm mb-1">Haar-like Features</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Simple rectangular difference operators: Edge, Line, and Diagonal features reflecting facial anatomy (e.g. eyes darker than cheeks).
+          </p>
+        </div>
+
+        <div class="glass-panel p-5 rounded-xl border border-slate-800">
+          <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center mb-3">
+            <span class="font-bold">2</span>
+          </div>
+          <h4 class="font-bold text-white text-sm mb-1">Integral Image</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Intermediate image representation computing the sum of arbitrary sub-rectangles in constant $O(1)$ time with only 4 array lookups.
+          </p>
+        </div>
+
+        <div class="glass-panel p-5 rounded-xl border border-slate-800">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
+            <span class="font-bold">3</span>
+          </div>
+          <h4 class="font-bold text-white text-sm mb-1">AdaBoost Boosting</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Selects a critical subset of ~6,000 discriminative features from an exhaustive pool of >160,000 features while constructing weak classifiers.
+          </p>
+        </div>
+
+        <div class="glass-panel p-5 rounded-xl border border-slate-800">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3">
+            <span class="font-bold">4</span>
+          </div>
+          <h4 class="font-bold text-white text-sm mb-1">Attentional Cascade</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Funnel architecture that rapidly rejects >95% of non-face background patches in early stages using simple classifiers, reserving complex models for candidates.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Simulator 1: Integral Image O(1) Interactive Calculator -->
+      <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-6">
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fas fa-table-cells text-amber-400"></i> Interactive Integral Image Calculator ($O(1)$ Rectangle Sum)
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">
+            See how Viola-Jones calculates the sum of all pixels inside any sub-window in constant time using only 4 corner lookups:
+            <span class="font-mono text-amber-300">Sum = D - B - C + A</span>.
+          </p>
+        </div>
+
+        <!-- Coordinate Selectors & Randomizer -->
+        <div class="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-900 rounded-xl border border-slate-800 text-xs">
+          <div class="flex items-center gap-3">
+            <span class="text-slate-400 font-semibold">Sub-rectangle Bounds:</span>
+            <div class="flex items-center gap-1.5 font-mono">
+              <span>Row 1:</span>
+              <select id="vj-sel-r1" class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+              </select>
+              <span>Col 1:</span>
+              <select id="vj-sel-c1" class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+              </select>
+              <span class="mx-1 text-slate-500">to</span>
+              <span>Row 2:</span>
+              <select id="vj-sel-r2" class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+              </select>
+              <span>Col 2:</span>
+              <select id="vj-sel-c2" class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-slate-200">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+          </div>
+          <button id="vj-btn-randomize" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+            <i class="fas fa-random mr-1"></i> Randomize Pixels
+          </button>
+        </div>
+
+        <!-- Side by side grids -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          
+          <!-- Raw Pixel Matrix -->
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-semibold text-slate-300 mb-2">Original Pixel Image $i(x,y)$ (6×6)</span>
+            <div id="vj-raw-grid" class="grid grid-cols-6 gap-1 p-3 bg-slate-900/80 rounded-xl border border-slate-800"></div>
+            <span class="text-[10px] text-blue-400 mt-2 font-mono">Blue highlight = Selected sub-window</span>
+          </div>
+
+          <!-- Integral Image Matrix -->
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-semibold text-slate-300 mb-2">Integral Image $ii(x,y) = \sum_{x'\le x, y'\le y} i(x',y')$</span>
+            <div id="vj-ii-grid" class="grid grid-cols-6 gap-1 p-3 bg-slate-900/80 rounded-xl border border-slate-800"></div>
+            <div class="flex items-center gap-3 text-[10px] mt-2 font-mono">
+              <span class="text-rose-400">■ A (r1-1, c1-1)</span>
+              <span class="text-amber-400">■ B (r1-1, c2)</span>
+              <span class="text-emerald-400">■ C (r2, c1-1)</span>
+              <span class="text-purple-400">■ D (r2, c2)</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Arithmetic Step Verification Card -->
+        <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="text-sm font-mono text-slate-200">
+            $$\text{Fast Sum} = D - B - C + A = <span id="vj-calc-d" class="text-purple-400 font-bold">0</span> - <span id="vj-calc-b" class="text-amber-400 font-bold">0</span> - <span id="vj-calc-c" class="text-emerald-400 font-bold">0</span> + <span id="vj-calc-a" class="text-rose-400 font-bold">0</span> = \mathbf{<span id="vj-calc-res" class="text-blue-400 font-bold text-lg">0</span>}$$
+          </div>
+          <div class="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-400 flex items-center gap-2">
+            <i class="fas fa-check-circle"></i>
+            <span>Brute Force Verification ($\sum \text{pixels}$): <strong id="vj-calc-brute" class="font-mono text-white">0</strong></span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Simulator 2: Haar Features & Cascade Funnel -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Haar Feature Visualizer -->
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="fas fa-glasses text-amber-400"></i> Haar Feature Facial Morphology
+              </h3>
+              <span id="vj-custom-badge" class="hidden px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-semibold">
+                Custom Photo
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1">
+                <i class="fas fa-upload text-amber-400"></i>
+                <span>Upload Face</span>
+                <input type="file" id="vj-upload-face" accept="image/*" class="hidden">
+              </label>
+              <button id="vj-btn-reset-face" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 text-xs transition" title="Reset to default face">
+                <i class="fas fa-undo"></i>
+              </button>
+              <select id="vj-haar-type" class="bg-slate-800 border border-slate-700 text-xs rounded-lg px-2 py-1 text-slate-200">
+                <option value="eye-forehead">Edge: Eyes vs Cheeks (Horizontal)</option>
+                <option value="nose-bridge">Line: Nose Bridge vs Eyes (Vertical)</option>
+                <option value="mouth-chin">Edge: Lip Fissure vs Chin</option>
+                <option value="diagonal">Four-Rectangle: Diagonal</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-6">
+            <div class="interactive-canvas-container flex-shrink-0">
+              <canvas id="vj-haar-canvas"></canvas>
+            </div>
+            <div id="vj-haar-desc" class="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Attentional Cascade Funnel -->
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fas fa-filter text-purple-400"></i> The Attentional Cascade Funnel
+          </h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Viola-Jones links 38 stages sequentially. Each stage is an AdaBoost ensemble tuned for extreme detection rate ($>99.9\%$), rejecting negative patches immediately.
+          </p>
+
+          <div class="space-y-2 pt-2">
+            <div class="flex justify-between text-xs text-slate-400">
+              <span>Cascade Stage Inspection:</span>
+              <span id="vj-casc-stage" class="text-blue-400 font-bold">Stage 1 of 38</span>
+            </div>
+            <input id="vj-cascade-slider" type="range" min="0" max="5" value="0" class="w-full accent-purple-500">
+          </div>
+
+          <!-- Funnel Progress Bar -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <span>Remaining Candidate Windows:</span>
+              <span id="vj-casc-pass" class="font-mono text-emerald-400 font-bold">50.0%</span>
+            </div>
+            <div class="w-full h-3 rounded-full bg-slate-900 overflow-hidden border border-slate-800">
+              <div id="vj-casc-bar" class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300" style="width: 50%;"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs pt-2">
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Features in Stage</span>
+              <span id="vj-casc-feat" class="text-white font-bold font-mono">2 features</span>
+            </div>
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Cumulative False Positives</span>
+              <span id="vj-casc-fp" class="text-rose-400 font-bold font-mono">5.0e-1</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         TAB 3: DEEPFACE
+         ======================================================================= -->
+    <section id="deepface" class="topic-section hidden space-y-8">
+      
+      <!-- Module Header -->
+      <div class="border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2 text-blue-400 text-sm font-semibold mb-1">
+          <i class="fas fa-cube"></i> Deep Learning Revolution (Taigman et al., Facebook 2014)
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">3. DeepFace</h2>
+        <p class="text-slate-300 text-sm mt-1">
+          Closing the gap to human performance (97.35% on LFW) via 3D Face Alignment & Locally Connected Layers.
+        </p>
+      </div>
+
+      <!-- Theory & Core Innovation -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fas fa-layer-group text-blue-400"></i> The Core Architectural Insight
+          </h3>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Standard Convolutional Neural Networks assume <em>translational invariance</em> (parameter sharing across the spatial grid). In general object detection (e.g. ImageNet), a dog can appear anywhere in an image.
+          </p>
+          <div class="p-4 rounded-xl bg-blue-950/30 border border-blue-500/30 text-xs text-blue-200 space-y-2">
+            <strong class="text-blue-300 font-semibold block text-sm">Why Locally Connected Layers?</strong>
+            <p>
+              Once a face is rigidly aligned in 3D, <strong>eyes are always at specific spatial coordinates</strong>, and the mouth is always at the bottom.
+            </p>
+            <p>
+              Sharing weights forces a convolution filter to simultaneously model eyes and mouths. DeepFace solves this using <strong>Locally Connected Layers</strong> (layers L4, L5, L6): each spatial location has its own independent filter weights without spatial weight sharing!
+            </p>
+          </div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fas fa-trophy text-amber-400"></i> Milestone Benchmark Significance
+          </h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
+              <span class="text-xs text-slate-400 block mb-1">LFW Accuracy</span>
+              <span class="text-3xl font-black text-blue-400">97.35%</span>
+              <span class="text-[10px] text-slate-500 block mt-1">27% error reduction</span>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center">
+              <span class="text-xs text-slate-400 block mb-1">Human Baseline</span>
+              <span class="text-3xl font-black text-slate-300">97.53%</span>
+              <span class="text-[10px] text-slate-500 block mt-1">Virtually tied human eye</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Trained on the Social Face Classification (SFC) dataset: 4.4 million labeled faces belonging to 4,030 identities. Verification uses the 4,096-D representation at layer F7.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Simulator: 3D Alignment Pipeline & Architecture Explorer -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: 3D Alignment Step-through -->
+        <div class="lg:col-span-6 glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="fas fa-shapes text-purple-400"></i> 3D Face Alignment Pipeline
+              </h3>
+              <span id="df-custom-badge" class="hidden px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-semibold">
+                Custom Face
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1">
+                <i class="fas fa-upload text-blue-400"></i>
+                <span>Upload Face</span>
+                <input type="file" id="df-upload-face" accept="image/*" class="hidden">
+              </label>
+              <button id="df-btn-reset-face" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 text-xs transition" title="Reset to default face">
+                <i class="fas fa-undo"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step Buttons -->
+          <div class="grid grid-cols-4 gap-2 text-xs">
+            <button data-step="1" class="df-step-btn px-2 py-2 rounded-lg bg-blue-600 text-white font-semibold transition text-center">
+              1. Detect
+            </button>
+            <button data-step="2" class="df-step-btn px-2 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold transition text-center">
+              2. 6-Anchors
+            </button>
+            <button data-step="3" class="df-step-btn px-2 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold transition text-center">
+              3. 3D Mesh
+            </button>
+            <button data-step="4" class="df-step-btn px-2 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold transition text-center">
+              4. Frontalize
+            </button>
+          </div>
+
+          <div class="flex flex-col items-center">
+            <div class="interactive-canvas-container">
+              <canvas id="df-align-canvas"></canvas>
+            </div>
+            <div id="df-step-description" class="mt-4 p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 w-full leading-relaxed">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 9-Layer Architecture Explorer -->
+        <div class="lg:col-span-6 glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fas fa-network-wired text-blue-400"></i> DeepFace 9-Layer Architecture
+          </h3>
+          <p class="text-xs text-slate-400">Click any layer below to inspect dimensions and parameter counts:</p>
+
+          <div id="df-layers-list" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Layer Inspector Card -->
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-2">
+            <div class="flex items-center justify-between">
+              <span id="df-inspector-title" class="font-bold text-amber-400 text-sm">L4: Locally Connected</span>
+              <span id="df-inspector-type" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[11px]">LocallyConnected</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-slate-400">
+              <div>Output Dimensions: <strong id="df-inspector-dims" class="text-white font-mono">55 × 55 × 16</strong></div>
+              <div>Parameters: <strong id="df-inspector-params" class="text-white font-mono">~1.4M</strong></div>
+            </div>
+            <p id="df-inspector-body" class="text-slate-300 pt-1 leading-relaxed">
+              16 unshared filters of size 9×9 per spatial location. Critical: Weights are NOT shared across the spatial grid because the face is rigidly 3D-aligned!
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         TAB 4: FACENET
+         ======================================================================= -->
+    <section id="facenet" class="topic-section hidden space-y-8">
+      
+      <!-- Module Header -->
+      <div class="border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2 text-emerald-400 text-sm font-semibold mb-1">
+          <i class="fas fa-project-diagram"></i> Direct Metric Learning (Schroff, Kalenichenko & Philbin, Google 2015)
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">4. FaceNet</h2>
+        <p class="text-slate-300 text-sm mt-1">
+          Direct 128-D Euclidean space embedding, Triplet Loss optimization, and online semi-hard negative mining.
+        </p>
+      </div>
+
+      <!-- Theory & Triplet Loss Formulation -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fas fa-compass-drafting text-emerald-400"></i> The Triplet Loss Formulation
+          </h3>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Unlike DeepFace which trained on intermediate classification and extracted bottleneck activations, FaceNet directly optimizes an embedding function $f(x) \in \mathbb{R}^{128}$ such that squared Euclidean distance corresponds to facial similarity:
+          </p>
+
+          <div class="formula-card space-y-2">
+            <div class="text-xs font-bold text-emerald-400 uppercase tracking-wide">Triplet Loss Objective</div>
+            <div class="text-sm text-slate-100 font-mono">
+              $$\mathcal{L} = \sum_{i}^{N} \max\left(0, \|f(x_i^a) - f(x_i^p)\|_2^2 - \|f(x_i^a) - f(x_i^n)\|_2^2 + \alpha\right)$$
+            </div>
+            <p class="text-xs text-slate-300">
+              Where $x_i^a$ is an <strong>Anchor</strong> image, $x_i^p$ is a <strong>Positive</strong> (same person), $x_i^n$ is a <strong>Negative</strong> (different person), and $\alpha$ is the margin constraint.
+            </p>
+          </div>
+
+          <div class="formula-card space-y-2">
+            <div class="text-xs font-bold text-blue-400 uppercase tracking-wide">L2 Normalization Constraint</div>
+            <div class="text-sm text-slate-100 font-mono">
+              $$\|f(x)\|_2 = 1 \implies f(x) \text{ lies on unit hypersphere } \mathbb{S}^{127}$$
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fas fa-layer-group text-amber-400"></i> The Three Triplet Regimes & Mining
+          </h3>
+          <p class="text-sm text-slate-300">
+            Selecting triplets at random produces vanishing gradients. FaceNet categorizes triplets into three mathematical categories:
+          </p>
+
+          <div class="space-y-2.5 text-xs">
+            <div class="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30">
+              <strong class="text-emerald-300 font-semibold">1. Easy Triplets:</strong>
+              <div class="font-mono text-slate-300 mt-0.5">$\|x_a - x_n\|^2 > \|x_a - x_p\|^2 + \alpha$</div>
+              <p class="text-slate-400 mt-1">Loss is exactly 0. Gives zero gradient; useless for backprop training.</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-amber-950/30 border border-amber-500/30">
+              <strong class="text-amber-300 font-semibold">2. Semi-Hard Triplets (Optimal Target):</strong>
+              <div class="font-mono text-slate-300 mt-0.5">$\|x_a - x_p\|^2 < \|x_a - x_n\|^2 < \|x_a - x_p\|^2 + \alpha$</div>
+              <p class="text-slate-400 mt-1">Negative is further than positive, but still inside margin $\alpha$. Produces stable, non-collapsing gradient descent!</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-rose-950/30 border border-rose-500/30">
+              <strong class="text-rose-300 font-semibold">3. Hard Triplets:</strong>
+              <div class="font-mono text-slate-300 mt-0.5">$\|x_a - x_n\|^2 < \|x_a - x_p\|^2$</div>
+              <p class="text-slate-400 mt-1">Negative is closer than positive. Risky early on: can cause bad local minima or collapsed embeddings.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Simulator: Interactive Triplet Loss Embedding Playground -->
+      <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-6">
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fas fa-hand-pointer text-emerald-400"></i> Interactive Triplet Loss Playground
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Drag the <strong>Anchor (Blue)</strong>, <strong>Positive (Green)</strong>, and <strong>Negative (Red)</strong> points across the Euclidean plane to watch the loss and margin spheres update in real time:
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          
+          <!-- Playground Canvas -->
+          <div class="lg:col-span-7 flex flex-col items-center">
+            <div class="interactive-canvas-container">
+              <canvas id="fn-triplet-canvas"></canvas>
+            </div>
+            <span class="text-[10px] text-slate-500 mt-2">Click and drag any point • Amber dashed circle = Margin boundary ($\alpha$)</span>
+          </div>
+
+          <!-- Controls & Telemetry -->
+          <div class="lg:col-span-5 space-y-4">
+            
+            <!-- Presets -->
+            <div>
+              <span class="text-xs font-semibold text-slate-400 block mb-2">Preset Configurations:</span>
+              <div class="grid grid-cols-3 gap-2">
+                <button id="fn-preset-easy" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-emerald-300 border border-slate-700 transition">
+                  Easy Triplet
+                </button>
+                <button id="fn-preset-semi" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-amber-300 border border-slate-700 transition">
+                  Semi-Hard
+                </button>
+                <button id="fn-preset-hard" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-rose-300 border border-slate-700 transition">
+                  Hard Triplet
+                </button>
+              </div>
+            </div>
+
+            <!-- Margin Slider -->
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
+              <div class="flex justify-between text-xs text-slate-300">
+                <span>Margin Parameter ($\alpha$):</span>
+                <span id="fn-margin-val" class="font-mono text-amber-400 font-bold">0.20</span>
+              </div>
+              <input id="fn-margin-slider" type="range" min="0.05" max="0.6" value="0.2" step="0.05" class="w-full accent-amber-500">
+            </div>
+
+            <!-- Real-time Metrics Card -->
+            <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Distance $\|x_a - x_p\|^2$:</span>
+                <span id="fn-dist-ap" class="text-emerald-400 font-mono font-bold">0.000</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Distance $\|x_a - x_n\|^2$:</span>
+                <span id="fn-dist-an" class="text-rose-400 font-mono font-bold">0.000</span>
+              </div>
+              <div class="flex justify-between border-t border-slate-800 pt-2 text-sm">
+                <span class="text-white font-semibold">Instantaneous Loss $\mathcal{L}$:</span>
+                <span id="fn-loss-val" class="font-mono font-bold text-base">0.000</span>
+              </div>
+              <div class="pt-2 text-center">
+                <div id="fn-regime-badge" class="px-3 py-1 text-xs rounded-full border border-slate-700 bg-slate-800 text-amber-400 font-bold">
+                  SEMI-HARD TRIPLET
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Simulator: 128-D Euclidean Face Verification Demo -->
+      <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fas fa-fingerprint text-emerald-400"></i> FaceNet Verification Engine (Euclidean Distance Classifier)
+        </h3>
+        <p class="text-xs text-slate-300">
+          In deployment, FaceNet computes the Euclidean distance $d = \|f(x_1) - f(x_2)\|_2$. If $d < \tau$ (typical threshold $\tau \approx 1.24$), the pair is classified as the <strong>same person</strong>.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center pt-2">
+          
+          <div class="space-y-1">
+            <label class="text-xs text-slate-400 font-medium block">Evaluation Pair</label>
+            <select id="fn-pair-select" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+              <option value="same-1">Subject A (Studio) vs Subject A (Sunlight)</option>
+              <option value="same-2">Subject B (Neutral) vs Subject B (Glasses)</option>
+              <option value="diff-1">Subject A vs Subject C (Different Identities)</option>
+              <option value="diff-2">Subject D vs Subject E (Lookalikes)</option>
+              <option value="custom">★ Custom Uploaded Face Pair (Live 128-D)</option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs text-slate-400">
+              <span>Threshold $\tau$:</span>
+              <span id="fn-thresh-val" class="font-mono text-blue-400 font-bold">1.24</span>
+            </div>
+            <input id="fn-thresh-slider" type="range" min="0.8" max="1.6" value="1.24" step="0.02" class="w-full accent-blue-500">
+          </div>
+
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-around text-center">
+            <div>
+              <span class="text-[11px] text-slate-400 block">Calculated $d$</span>
+              <span id="fn-verif-dist" class="text-base font-bold text-white font-mono">0.68</span>
+            </div>
+            <div id="fn-verif-result">
+              <span class="px-3 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 font-bold text-xs">
+                MATCH
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Custom Upload Bar for Staff Testing -->
+        <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+            <i class="fas fa-camera text-emerald-400"></i> Staff Test: Upload 2 Custom Face Images:
+          </span>
+          <div class="flex flex-wrap items-center gap-3">
+            <label class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5">
+              <i class="fas fa-user text-blue-400"></i>
+              <span>Upload Face 1</span>
+              <input type="file" id="fn-upload-1" accept="image/*" class="hidden">
+            </label>
+            <label class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold cursor-pointer transition flex items-center gap-1.5">
+              <i class="fas fa-user-check text-emerald-400"></i>
+              <span>Upload Face 2</span>
+              <input type="file" id="fn-upload-2" accept="image/*" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+          <div class="flex items-center gap-2">
+            <img id="fn-thumb-1" class="hidden w-8 h-8 rounded-full border border-blue-500 object-cover" alt="Face 1">
+            <span id="fn-face1-desc">Subject 1</span>
+          </div>
+          <span class="text-slate-500 font-mono">⟷ 128-D Euclidean Metric $d(f(x_1), f(x_2))$ ⟷</span>
+          <div class="flex items-center gap-2">
+            <span id="fn-face2-desc">Subject 2</span>
+            <img id="fn-thumb-2" class="hidden w-8 h-8 rounded-full border border-emerald-500 object-cover" alt="Face 2">
+          </div>
+        </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         TAB 5: COMPARATIVE BENCHMARK ANALYSIS
+         ======================================================================= -->
+    <section id="comparative-analysis" class="topic-section hidden space-y-8">
+      
+      <!-- Module Header -->
+      <div class="border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2 text-purple-400 text-sm font-semibold mb-1">
+          <i class="fas fa-chart-radar"></i> Systematic Synthesis & Benchmarking
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Comparative Benchmark Matrix</h2>
+        <p class="text-slate-300 text-sm mt-1">
+          Cross-paradigm comparison of accuracy, speed, robustness, hardware footprints, and operational complexity.
+        </p>
+      </div>
+
+      <!-- Comparative Data Matrix Table -->
+      <div class="glass-panel p-6 rounded-xl border border-slate-800">
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fas fa-table text-blue-400"></i> Technical Comparison Matrix
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="text-xs uppercase bg-slate-900/90 text-slate-400 border-b border-slate-700">
+              <tr>
+                <th class="px-4 py-3">Metric / Feature</th>
+                <th class="px-4 py-3 text-rose-400">Template Matching</th>
+                <th class="px-4 py-3 text-amber-400">Viola-Jones (2001)</th>
+                <th class="px-4 py-3 text-blue-400">DeepFace (2014)</th>
+                <th class="px-4 py-3 text-emerald-400">FaceNet (2015)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-xs font-mono">
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-white">Underlying Paradigm</td>
+                <td class="px-4 py-3 font-sans">Pixel Correlation</td>
+                <td class="px-4 py-3 font-sans">Haar Boosted Cascade</td>
+                <td class="px-4 py-3 font-sans">Deep Local CNN + 3D Align</td>
+                <td class="px-4 py-3 font-sans">Direct Metric Embedding</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-white">LFW Benchmark Accuracy</td>
+                <td class="px-4 py-3 text-rose-400">~42%</td>
+                <td class="px-4 py-3 text-amber-400">~62% (Det/Align)</td>
+                <td class="px-4 py-3 text-blue-400">97.35%</td>
+                <td class="px-4 py-3 text-emerald-400 font-bold">99.63%</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-white">Inference Speed (FPS)</td>
+                <td class="px-4 py-3">15-30 FPS (Single scale)</td>
+                <td class="px-4 py-3 text-emerald-400 font-bold">>60 FPS (CPU Real-Time)</td>
+                <td class="px-4 py-3">10-25 FPS (GPU)</td>
+                <td class="px-4 py-3">30-60 FPS (Modern GPU)</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-white">Scale & Rotation Invariance</td>
+                <td class="px-4 py-3 text-rose-400">Extremely Poor</td>
+                <td class="px-4 py-3 text-amber-400">Poor (Pyramid needed)</td>
+                <td class="px-4 py-3 text-emerald-400">High (3D Frontalization)</td>
+                <td class="px-4 py-3 text-emerald-400 font-bold">Exceptional (Learned)</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-white">Feature Representation</td>
+                <td class="px-4 py-3">Raw Pixel Matrix</td>
+                <td class="px-4 py-3">6,000 Haar features</td>
+                <td class="px-4 py-3">4,096-D Bottleneck</td>
+                <td class="px-4 py-3 text-emerald-400 font-bold">128-D Euclidean Vector</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-white">Primary Training Loss</td>
+                <td class="px-4 py-3 font-sans">None (Unsupervised)</td>
+                <td class="px-4 py-3 font-sans">AdaBoost Exponential Loss</td>
+                <td class="px-4 py-3 font-sans">Cross-Entropy Softmax</td>
+                <td class="px-4 py-3 font-sans text-emerald-400">Triplet Margin Loss</td>
+              </tr>
+              <tr class="hover:bg-slate-800/40">
+                <td class="px-4 py-3 font-sans font-bold text-white">Hardware Requirement</td>
+                <td class="px-4 py-3 font-sans">Low (CPU)</td>
+                <td class="px-4 py-3 font-sans text-emerald-400">Extremely Low (Microcontrollers)</td>
+                <td class="px-4 py-3 font-sans">High (GPU 120M+ params)</td>
+                <td class="px-4 py-3 font-sans">Moderate-High (MobileNet/GPU)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Visual Charts (Radar & Bar) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Radar Chart -->
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 flex flex-col">
+          <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+            <i class="fas fa-radar text-purple-400"></i> Multi-Dimensional Performance Radar
+          </h3>
+          <p class="text-xs text-slate-400 mb-4">Normalized score comparison across 5 core IVA operational attributes.</p>
+          <div class="relative flex-1 min-h-[300px]">
+            <canvas id="benchmark-radar-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 flex flex-col">
+          <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+            <i class="fas fa-chart-column text-blue-400"></i> Labeled Faces in the Wild (LFW) Benchmark (%)
+          </h3>
+          <p class="text-xs text-slate-400 mb-4">Accuracy comparison against the human eye baseline benchmark (97.53%).</p>
+          <div class="relative flex-1 min-h-[300px]">
+            <canvas id="benchmark-bar-chart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         TAB 6: KNOWLEDGE CHECK / ASSIGNMENT QUIZ
+         ======================================================================= -->
+    <section id="quiz" class="topic-section hidden space-y-8">
+      
+      <!-- Module Header -->
+      <div class="border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2 text-cyan-400 text-sm font-semibold mb-1">
+          <i class="fas fa-graduation-cap"></i> Interactive Assignment Assessment
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">IVA Assignment Knowledge Quiz</h2>
+        <p class="text-slate-300 text-sm mt-1">
+          Evaluate your understanding of the mathematical, architectural, and operational principles of the four algorithms.
+        </p>
+      </div>
+
+      <div class="glass-panel p-8 rounded-xl border border-slate-800 max-w-4xl mx-auto space-y-6">
+        
+        <form id="iva-quiz-form" class="space-y-8 text-sm">
+          
+          <!-- Q1 -->
+          <div class="space-y-3 pb-6 border-b border-slate-800">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">Q1</span>
+              <span>What is the computational complexity of calculating the pixel sum of any arbitrary rectangular sub-window using an Integral Image in Viola-Jones?</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q1" value="a" class="accent-blue-500">
+                <span class="text-slate-300">A) $O(w \times h)$ where $w,h$ are patch dimensions</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q1" value="b" class="accent-blue-500">
+                <span class="text-slate-300">B) $O(\log(W \times H))$</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q1" value="c" class="accent-blue-500">
+                <span class="text-slate-300 font-semibold text-white">C) $O(1)$ constant time (4 array lookups)</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q1" value="d" class="accent-blue-500">
+                <span class="text-slate-300">D) $O(N)$ where $N$ is cascade stage count</span>
+              </label>
+            </div>
+            <div id="q1-exp" class="quiz-exp hidden text-xs pl-8 font-medium"></div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="space-y-3 pb-6 border-b border-slate-800">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">Q2</span>
+              <span>Why did DeepFace (Taigman et al.) utilize Locally Connected Layers instead of standard Convolutional Layers in layers L4, L5, and L6?</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q2" value="a" class="accent-blue-500">
+                <span class="text-slate-300">A) To drastically reduce total parameter count</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q2" value="b" class="accent-blue-500">
+                <span class="text-slate-300 font-semibold text-white">B) Because 3D alignment fixes facial feature coordinates, making spatial weight sharing unnecessary and counterproductive</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q2" value="c" class="accent-blue-500">
+                <span class="text-slate-300">C) To prevent overfitting on small datasets</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q2" value="d" class="accent-blue-500">
+                <span class="text-slate-300">D) To enable faster inference on mobile CPUs</span>
+              </label>
+            </div>
+            <div id="q2-exp" class="quiz-exp hidden text-xs pl-8 font-medium"></div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="space-y-3 pb-6 border-b border-slate-800">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">Q3</span>
+              <span>In FaceNet's Triplet Loss, what mathematical inequality characterizes a "Semi-Hard" negative triplet?</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q3" value="a" class="accent-blue-500">
+                <span class="text-slate-300">A) $\|x_a - x_n\|^2 < \|x_a - x_p\|^2$</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q3" value="b" class="accent-blue-500">
+                <span class="text-slate-300 font-semibold text-white">B) $\|x_a - x_p\|^2 < \|x_a - x_n\|^2 < \|x_a - x_p\|^2 + \alpha$</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q3" value="c" class="accent-blue-500">
+                <span class="text-slate-300">C) $\|x_a - x_n\|^2 > \|x_a - x_p\|^2 + \alpha$</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q3" value="d" class="accent-blue-500">
+                <span class="text-slate-300">D) $\|x_a - x_n\|^2 = 0$</span>
+              </label>
+            </div>
+            <div id="q3-exp" class="quiz-exp hidden text-xs pl-8 font-medium"></div>
+          </div>
+
+          <!-- Q4 -->
+          <div class="space-y-3 pb-6 border-b border-slate-800">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">Q4</span>
+              <span>Under which of the following real-world conditions does classical Template Matching (SSD / NCC) fail most catastrophically?</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q4" value="a" class="accent-blue-500">
+                <span class="text-slate-300">A) Pure horizontal 2D translation</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q4" value="b" class="accent-blue-500">
+                <span class="text-slate-300">B) Uniform global brightness addition</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q4" value="c" class="accent-blue-500">
+                <span class="text-slate-300 font-semibold text-white">C) Significant scale changes, rotations, or perspective distortions</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q4" value="d" class="accent-blue-500">
+                <span class="text-slate-300">D) Static background subtraction</span>
+              </label>
+            </div>
+            <div id="q4-exp" class="quiz-exp hidden text-xs pl-8 font-medium"></div>
+          </div>
+
+          <!-- Q5 -->
+          <div class="space-y-3 pb-6 border-b border-slate-800">
+            <div class="font-bold text-white flex items-center gap-2">
+              <span class="w-6 h-6 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">Q5</span>
+              <span>What is the primary architectural purpose of the Attentional Cascade in the Viola-Jones detector?</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-8">
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q5" value="a" class="accent-blue-500">
+                <span class="text-slate-300 font-semibold text-white">A) To rapidly reject >95% of background non-face windows in early stages with very few features</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q5" value="b" class="accent-blue-500">
+                <span class="text-slate-300">B) To perform 3D facial mesh reconstruction</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q5" value="c" class="accent-blue-500">
+                <span class="text-slate-300">C) To optimize 128-dimensional triplet loss gradients</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                <input type="radio" name="q5" value="d" class="accent-blue-500">
+                <span class="text-slate-300">D) To convert RGB pixels into grayscale</span>
+              </label>
+            </div>
+            <div id="q5-exp" class="quiz-exp hidden text-xs pl-8 font-medium"></div>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="flex items-center justify-between pt-4">
+            <button type="submit" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-500/30 transition">
+              <i class="fas fa-check-double mr-1.5"></i> Submit Assignment Answers
+            </button>
+            <button type="button" id="quiz-reset-btn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700 transition">
+              Reset Form
+            </button>
+          </div>
+
+        </form>
+
+        <!-- Result Card -->
+        <div id="quiz-result-card" class="hidden p-6 rounded-2xl bg-gradient-to-r from-slate-900 to-blue-950/60 border border-blue-500/40 text-center space-y-3">
+          <div class="text-xs uppercase tracking-wider text-slate-400">Assessment Score</div>
+          <div class="text-4xl font-extrabold text-white flex items-center justify-center gap-3">
+            <span id="quiz-score-val" class="text-blue-400">0 / 5</span>
+            <span class="text-slate-500">|</span>
+            <span id="quiz-percent-val" class="text-emerald-400">0%</span>
+          </div>
+          <div class="pt-2">
+            <span id="quiz-feedback-badge" class="px-3 py-1 rounded-full text-xs font-semibold"></span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         TAB 7: ACADEMIC REFERENCES & CITATIONS
+         ======================================================================= -->
+    <section id="references" class="topic-section hidden space-y-8">
+      
+      <!-- Module Header -->
+      <div class="border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2 text-slate-400 text-sm font-semibold mb-1">
+          <i class="fas fa-book-bookmark"></i> Formal Academic Bibliography
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">References & Citations</h2>
+        <p class="text-slate-300 text-sm mt-1">
+          IEEE and APA formatted academic references for the foundational papers in this IVA coursework.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Citation 1 -->
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs font-mono text-amber-400">
+            <span>Viola-Jones (2001, 2004)</span>
+            <span class="bg-amber-500/10 px-2 py-0.5 rounded">IJCV & CVPR</span>
+          </div>
+          <h4 class="font-bold text-white text-base">Robust Real-Time Face Detection</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Viola, P., & Jones, M. (2001). <em>Rapid object detection using a boosted cascade of simple features</em>. In Proceedings of the 2001 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR 2001), Vol. 1, pp. I-511. IEEE.
+          </p>
+          <div class="pt-2">
+            <a href="https://ieeexplore.ieee.org/document/990517" target="_blank" class="text-xs text-blue-400 hover:underline">
+              <i class="fas fa-external-link-alt mr-1"></i> IEEE Xplore Entry
+            </a>
+          </div>
+        </div>
+
+        <!-- Citation 2 -->
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs font-mono text-blue-400">
+            <span>DeepFace (2014)</span>
+            <span class="bg-blue-500/10 px-2 py-0.5 rounded">CVPR 2014</span>
+          </div>
+          <h4 class="font-bold text-white text-base">Closing the Gap to Human-Level Performance in Face Verification</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Taigman, Y., Yang, M., Ranzato, M. A., & Wolf, L. (2014). <em>Deepface: Closing the gap to human-level performance in face verification</em>. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR 2014), pp. 1701-1708.
+          </p>
+          <div class="pt-2">
+            <a href="https://openaccess.thecvf.com/content_cvpr_2014/html/Taigman_DeepFace_Closing_the_2014_CVPR_paper.html" target="_blank" class="text-xs text-blue-400 hover:underline">
+              <i class="fas fa-external-link-alt mr-1"></i> CVF Open Access Link
+            </a>
+          </div>
+        </div>
+
+        <!-- Citation 3 -->
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs font-mono text-emerald-400">
+            <span>FaceNet (2015)</span>
+            <span class="bg-emerald-500/10 px-2 py-0.5 rounded">CVPR 2015</span>
+          </div>
+          <h4 class="font-bold text-white text-base">A Unified Embedding for Face Recognition and Clustering</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Schroff, F., Kalenichenko, D., & Philbin, J. (2015). <em>Facenet: A unified embedding for face recognition and clustering</em>. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR 2015), pp. 815-823.
+          </p>
+          <div class="pt-2">
+            <a href="https://openaccess.thecvf.com/content_cvpr_2015/html/Schroff_FaceNet_A_Unified_2015_CVPR_paper.html" target="_blank" class="text-xs text-blue-400 hover:underline">
+              <i class="fas fa-external-link-alt mr-1"></i> CVF Open Access Link
+            </a>
+          </div>
+        </div>
+
+        <!-- Citation 4 -->
+        <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs font-mono text-rose-400">
+            <span>Template Matching Foundations</span>
+            <span class="bg-rose-500/10 px-2 py-0.5 rounded">Classical Vision</span>
+          </div>
+          <h4 class="font-bold text-white text-base">OpenCV Reference & Fast Normalized Cross-Correlation</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Lewis, J. P. (1995). <em>Fast normalized cross-correlation</em>. In Vision interface, Vol. 10, No. 1, pp. 120-123. & Bradski, G. (2000). The OpenCV Library. <em>Dr. Dobb's Journal of Software Tools</em>.
+          </p>
+          <div class="pt-2">
+            <a href="https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html" target="_blank" class="text-xs text-blue-400 hover:underline">
+              <i class="fas fa-external-link-alt mr-1"></i> OpenCV matchTemplate Documentation
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       FOOTER
+       ========================================================================= -->
+  <footer class="border-t border-slate-800/80 bg-slate-900/40 py-6 mt-12 text-xs text-slate-400 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <p class="font-medium text-slate-300">IVA (Image and Video Analytics) Academic Assignment Web Platform</p>
+        <p class="text-[11px] text-slate-500">Covers Template Matching, Viola-Jones, DeepFace, and FaceNet algorithms.</p>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="text-slate-500">Autonomous Client-Side Architecture</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        <span class="text-emerald-400 font-mono">100% Operational</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Modules Scripts -->
+  <script src="js/modules/template-matching.js"></script>
+  <script src="js/modules/viola-jones.js"></script>
+  <script src="js/modules/deepface.js"></script>
+  <script src="js/modules/facenet.js"></script>
+  <script src="js/comparison-chart.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

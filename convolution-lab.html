@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pixel Matrix Convolution Lab</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: white;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: auto;
+            padding: 30px 0;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            color: #00e5ff;
+        }
+
+        .subtitle {
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: #09090b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+
+        select,
+        input[type="file"],
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 7px;
+            border: 1px solid #444;
+            background: #111;
+            color: white;
+        }
+
+        button {
+            background: #00bcd4;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background: #00e5ff;
+        }
+
+        canvas {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            display: block;
+            margin: 10px auto;
+            border: 1px solid #333;
+            background: #111;
+        }
+
+        .section {
+            margin-top: 25px;
+        }
+
+        .sliders {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .matrix-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 5px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .matrix-cell {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111;
+            border: 1px solid #444;
+            color: #00e5ff;
+            font-weight: bold;
+        }
+
+        .calculation {
+            background: #050505;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #ddd;
+        }
+
+        .result {
+            color: #00e5ff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        @media(max-width: 800px) {
+            .main-grid,
+            .matrix-container,
+            .sliders {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>◈ Pixel Matrix Convolution Lab</h1>
+
+    <div class="subtitle">
+        Interactive spatial filtering and kernel transformation engine
+    </div>
+
+    <!-- =====================================================
+         INPUT / OUTPUT
+    ====================================================== -->
+
+    <div class="main-grid">
+
+        <!-- INPUT -->
+
+        <div class="card">
+
+            <h2>📥 Source Image</h2>
+
+            <label>Upload Image</label>
+
+            <input
+                type="file"
+                id="imageUpload"
+                accept="image/*"
+            >
+
+            <canvas
+                id="inputCanvas"
+                width="180"
+                height="130">
+            </canvas>
+
+        </div>
+
+
+        <!-- OUTPUT -->
+
+        <div class="card">
+
+            <h2>📤 Processed Result</h2>
+
+            <canvas
+                id="outputCanvas"
+                width="180"
+                height="130">
+            </canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTER SELECTION
+    ====================================================== -->
+
+    <div class="card section">
+
+        <h2>⚙️ Convolution Kernel / Filter</h2>
+
+        <select id="operation">
+
+            <option>Identity</option>
+            <option>Average Blur</option>
+            <option>Gaussian Blur</option>
+            <option selected>Sharpen</option>
+            <option>Emboss</option>
+            <option>Outline</option>
+
+            <option>Sobel X</option>
+            <option>Sobel Y</option>
+
+            <option>Prewitt X</option>
+            <option>Prewitt Y</option>
+
+            <option>Roberts X</option>
+            <option>Roberts Y</option>
+
+            <option>Laplacian</option>
+
+            <option>Gradient Magnitude</option>
+
+        </select>
+
+        <button onclick="processImage()">
+            Execute Transformation
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         SPATIAL INSPECTION
+    ====================================================== -->
+
+    <div class="card section">
+
+        <h2>🔍 Live Spatial Matrix Inspection</h2>
+
+        <div class="sliders">
+
+            <div>
+
+                <label>
+                    Center Row:
+                    <span id="rowValue">65</span>
+                </label>
+
+                <input
+                    type="range"
+                    id="rowSlider"
+                    min="1"
+                    max="128"
+                    value="65"
+                    oninput="updateCalculation()"
+                >
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Center Column:
+                    <span id="colValue">90</span>
+                </label>
+
+                <input
+                    type="range"
+                    id="colSlider"
+                    min="1"
+                    max="178"
+                    value="90"
+                    oninput="updateCalculation()"
+                >
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MATRICES
+    ====================================================== -->
+
+    <div class="matrix-container section">
+
+        <div class="card">
+
+            <h2>🖼️ Pixel Window (3×3)</h2>
+
+            <div id="pixelMatrix" class="matrix"></div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>🔢 Kernel Weights</h2>
+
+            <div id="kernelMatrix" class="matrix"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CALCULATION
+    ====================================================== -->
+
+    <div class="card section">
+
+        <h2>🧮 Element-wise Operations</h2>
+
+        <div class="calculation">
+
+            <pre id="calculation"></pre>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         RESULT
+    ====================================================== -->
+
+    <div class="card section">
+
+        <h2>📊 Convolution Result</h2>
+
+        <div class="result">
+
+            <p id="sumResult">
+                SUM: 0
+            </p>
+
+            <p id="finalResult">
+                FINAL PIXEL VALUE: 0
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   KERNEL DEFINITIONS
+========================================================= */
+
+const KERNELS = {
+
+    "Identity": [
+        [0,0,0],
+        [0,1,0],
+        [0,0,0]
+    ],
+
+    "Average Blur": [
+        [1/9,1/9,1/9],
+        [1/9,1/9,1/9],
+        [1/9,1/9,1/9]
+    ],
+
+    "Gaussian Blur": [
+        [1/16,2/16,1/16],
+        [2/16,4/16,2/16],
+        [1/16,2/16,1/16]
+    ],
+
+    "Sharpen": [
+        [0,-1,0],
+        [-1,5,-1],
+        [0,-1,0]
+    ],
+
+    "Emboss": [
+        [-2,-1,0],
+        [-1,1,1],
+        [0,1,2]
+    ],
+
+    "Outline": [
+        [-1,-1,-1],
+        [-1,8,-1],
+        [-1,-1,-1]
+    ],
+
+    "Sobel X": [
+        [-1,0,1],
+        [-2,0,2],
+        [-1,0,1]
+    ],
+
+    "Sobel Y": [
+        [-1,-2,-1],
+        [0,0,0],
+        [1,2,1]
+    ],
+
+    "Prewitt X": [
+        [-1,0,1],
+        [-1,0,1],
+        [-1,0,1]
+    ],
+
+    "Prewitt Y": [
+        [-1,-1,-1],
+        [0,0,0],
+        [1,1,1]
+    ],
+
+    "Roberts X": [
+        [1,0,0],
+        [0,-1,0],
+        [0,0,0]
+    ],
+
+    "Roberts Y": [
+        [0,1,0],
+        [-1,0,0],
+        [0,0,0]
+    ],
+
+    "Laplacian": [
+        [0,1,0],
+        [1,-4,1],
+        [0,1,0]
+    ]
+};
+
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+const inputCanvas =
+    document.getElementById("inputCanvas");
+
+const outputCanvas =
+    document.getElementById("outputCanvas");
+
+const inputCtx =
+    inputCanvas.getContext("2d");
+
+const outputCtx =
+    outputCanvas.getContext("2d");
+
+
+/* =========================================================
+   DEFAULT IMAGE
+========================================================= */
+
+function createDefaultImage() {
+
+    inputCtx.fillStyle = "rgb(20,20,20)";
+
+    inputCtx.fillRect(
+        0,
+        0,
+        180,
+        130
+    );
+
+
+    // Rectangle
+
+    inputCtx.fillStyle =
+        "rgb(235,235,235)";
+
+    inputCtx.fillRect(
+        12,
+        12,
+        53,
+        40
+    );
+
+
+    // Inner rectangle
+
+    inputCtx.fillStyle =
+        "rgb(20,20,20)";
+
+    inputCtx.fillRect(
+        28,
+        25,
+        21,
+        18
+    );
+
+
+    // Circle
+
+    inputCtx.fillStyle =
+        "rgb(210,210,210)";
+
+    inputCtx.beginPath();
+
+    inputCtx.arc(
+        114,
+        36,
+        26,
+        0,
+        Math.PI * 2
+    );
+
+    inputCtx.fill();
+
+
+    // Triangle
+
+    inputCtx.fillStyle =
+        "rgb(180,180,180)";
+
+    inputCtx.beginPath();
+
+    inputCtx.moveTo(18,112);
+    inputCtx.lineTo(53,65);
+    inputCtx.lineTo(88,112);
+
+    inputCtx.closePath();
+
+    inputCtx.fill();
+
+
+    // Rectangle
+
+    inputCtx.fillStyle =
+        "rgb(240,240,240)";
+
+    inputCtx.fillRect(
+        108,
+        75,
+        19,
+        40
+    );
+
+
+    inputCtx.fillStyle =
+        "rgb(150,150,150)";
+
+    inputCtx.fillRect(
+        94,
+        92,
+        64,
+        14
+    );
+
+
+    // Small circle
+
+    inputCtx.fillStyle =
+        "rgb(225,225,225)";
+
+    inputCtx.beginPath();
+
+    inputCtx.arc(
+        77,
+        82,
+        10,
+        0,
+        Math.PI * 2
+    );
+
+    inputCtx.fill();
+
+}
+
+
+/* =========================================================
+   GET IMAGE DATA
+========================================================= */
+
+function getImageArray() {
+
+    const imageData =
+        inputCtx.getImageData(
+            0,
+            0,
+            180,
+            130
+        );
+
+    const pixels = [];
+
+    for(let y=0; y<130; y++) {
+
+        pixels[y] = [];
+
+        for(let x=0; x<180; x++) {
+
+            const index =
+                (y * 180 + x) * 4;
+
+            const r =
+                imageData.data[index];
+
+            const g =
+                imageData.data[index+1];
+
+            const b =
+                imageData.data[index+2];
+
+            const gray =
+                0.299*r +
+                0.587*g +
+                0.114*b;
+
+            pixels[y][x] = gray;
+
+        }
+    }
+
+    return pixels;
+}
+
+
+/* =========================================================
+   NORMALIZE
+========================================================= */
+
+function normalize(values) {
+
+    let min = Infinity;
+    let max = -Infinity;
+
+    for(let row of values) {
+
+        for(let value of row) {
+
+            value = Math.abs(value);
+
+            if(value < min)
+                min = value;
+
+            if(value > max)
+                max = value;
+        }
+    }
+
+    if(max === min) {
+
+        return values.map(
+            row => row.map(() => 0)
+        );
+
+    }
+
+    return values.map(row =>
+        row.map(value =>
+            Math.max(
+                0,
+                Math.min(
+                    255,
+                    (
+                        (Math.abs(value)-min) /
+                        (max-min)
+                    ) * 255
+                )
+            )
+        )
+    );
+}
+
+
+/* =========================================================
+   CONVOLUTION
+========================================================= */
+
+function convolve(image, kernel) {
+
+    const height = image.length;
+    const width = image[0].length;
+
+    let result =
+        Array.from(
+            {length:height},
+            () =>
+            Array(width).fill(0)
+        );
+
+
+    for(let y=1; y<height-1; y++) {
+
+        for(let x=1; x<width-1; x++) {
+
+            let sum = 0;
+
+            for(let ky=0; ky<3; ky++) {
+
+                for(let kx=0; kx<3; kx++) {
+
+                    sum +=
+                        image[y+ky-1][x+kx-1] *
+                        kernel[ky][kx];
+
+                }
+            }
+
+            result[y][x] = sum;
+
+        }
+    }
+
+    return result;
+}
+
+
+/* =========================================================
+   DRAW OUTPUT
+========================================================= */
+
+function drawOutput(array) {
+
+    const normalized =
+        normalize(array);
+
+    const imageData =
+        outputCtx.createImageData(
+            180,
+            130
+        );
+
+    for(let y=0; y<130; y++) {
+
+        for(let x=0; x<180; x++) {
+
+            const index =
+                (y*180+x)*4;
+
+            const value =
+                normalized[y][x];
+
+            imageData.data[index] =
+                value;
+
+            imageData.data[index+1] =
+                value;
+
+            imageData.data[index+2] =
+                value;
+
+            imageData.data[index+3] =
+                255;
+        }
+    }
+
+    outputCtx.putImageData(
+        imageData,
+        0,
+        0
+    );
+}
+
+
+/* =========================================================
+   PROCESS IMAGE
+========================================================= */
+
+function processImage() {
+
+    const image =
+        getImageArray();
+
+    const operation =
+        document.getElementById(
+            "operation"
+        ).value;
+
+
+    if(operation === "Gradient Magnitude") {
+
+        const gx =
+            convolve(
+                image,
+                KERNELS["Sobel X"]
+            );
+
+        const gy =
+            convolve(
+                image,
+                KERNELS["Sobel Y"]
+            );
+
+        let magnitude =
+            Array.from(
+                {length:130},
+                () =>
+                Array(180).fill(0)
+            );
+
+        for(let y=0; y<130; y++) {
+
+            for(let x=0; x<180; x++) {
+
+                magnitude[y][x] =
+                    Math.sqrt(
+                        gx[y][x]**2 +
+                        gy[y][x]**2
+                    );
+            }
+        }
+
+        drawOutput(magnitude);
+
+    }
+
+    else {
+
+        const kernel =
+            KERNELS[operation];
+
+        const result =
+            convolve(
+                image,
+                kernel
+            );
+
+        drawOutput(result);
+    }
+
+    updateCalculation();
+}
+
+
+/* =========================================================
+   UPDATE MATRIX
+========================================================= */
+
+function updateCalculation() {
+
+    const image =
+        getImageArray();
+
+    let row =
+        parseInt(
+            document.getElementById(
+                "rowSlider"
+            ).value
+        );
+
+    let col =
+        parseInt(
+            document.getElementById(
+                "colSlider"
+            ).value
+        );
+
+    document.getElementById(
+        "rowValue"
+    ).innerText = row;
+
+    document.getElementById(
+        "colValue"
+    ).innerText = col;
+
+
+    const operation =
+        document.getElementById(
+            "operation"
+        ).value;
+
+
+    const kernel =
+        operation === "Gradient Magnitude"
+        ?
+        KERNELS["Sobel X"]
+        :
+        KERNELS[operation];
+
+
+    const pixelWindow = [];
+
+
+    for(let i=-1; i<=1; i++) {
+
+        let current = [];
+
+        for(let j=-1; j<=1; j++) {
+
+            current.push(
+                image[row+i][col+j]
+            );
+
+        }
+
+        pixelWindow.push(current);
+    }
+
+
+    displayMatrix(
+        "pixelMatrix",
+        pixelWindow,
+        false
+    );
+
+
+    displayMatrix(
+        "kernelMatrix",
+        kernel,
+        true
+    );
+
+
+    let total = 0;
+
+    let calculationText = "";
+
+
+    for(let i=0; i<3; i++) {
+
+        let line = [];
+
+        for(let j=0; j<3; j++) {
+
+            const pixel =
+                pixelWindow[i][j];
+
+            const weight =
+                kernel[i][j];
+
+            total +=
+                pixel * weight;
+
+            line.push(
+                `(${pixel.toFixed(0)} × ${weight.toFixed(2)})`
+            );
+        }
+
+        calculationText +=
+            line.join(" + ") +
+            "\n";
+    }
+
+
+    const finalValue =
+        Math.max(
+            0,
+            Math.min(
+                255,
+                Math.abs(total)
+            )
+        );
+
+
+    document.getElementById(
+        "calculation"
+    ).innerText =
+        calculationText;
+
+
+    document.getElementById(
+        "sumResult"
+    ).innerText =
+        `SUM: ${total.toFixed(2)}`;
+
+
+    document.getElementById(
+        "finalResult"
+    ).innerText =
+        `FINAL PIXEL VALUE: ${finalValue.toFixed(0)}`;
+}
+
+
+/* =========================================================
+   DISPLAY MATRIX
+========================================================= */
+
+function displayMatrix(
+    elementId,
+    matrix,
+    isKernel
+) {
+
+    const container =
+        document.getElementById(
+            elementId
+        );
+
+    container.innerHTML = "";
+
+
+    matrix.forEach(row => {
+
+        row.forEach(value => {
+
+            const cell =
+                document.createElement(
+                    "div"
+                );
+
+            cell.className =
+                "matrix-cell";
+
+            cell.innerText =
+                isKernel
+                ?
+                Number(value).toFixed(2)
+                :
+                Math.round(value);
+
+            container.appendChild(
+                cell
+            );
+
+        });
+
+    });
+}
+
+
+/* =========================================================
+   IMAGE UPLOAD
+========================================================= */
+
+document.getElementById(
+    "imageUpload"
+).addEventListener(
+    "change",
+    function(event) {
+
+        const file =
+            event.target.files[0];
+
+        if(!file)
+            return;
+
+        const image =
+            new Image();
+
+        image.onload =
+        function() {
+
+            inputCtx.clearRect(
+                0,
+                0,
+                180,
+                130
+            );
+
+            inputCtx.drawImage(
+                image,
+                0,
+                0,
+                180,
+                130
+            );
+
+            processImage();
+        };
+
+        image.src =
+            URL.createObjectURL(file);
+
+    }
+);
+
+
+/* =========================================================
+   OPERATION CHANGE
+========================================================= */
+
+document.getElementById(
+    "operation"
+).addEventListener(
+    "change",
+    function() {
+
+        processImage();
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+createDefaultImage();
+
+processImage();
+
+</script>
+
+</body>
+</html>
